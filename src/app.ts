@@ -7,15 +7,16 @@ import {
 } from "./db";
 import path from "path";
 import dotenv from "dotenv";
-import https from "https";
-import fs from "fs";
 import { auth, requiresAuth } from "express-openid-connect";
 import { config } from "./auth-oidc";
 import { checkJwt } from "./auth-oauth2";
 dotenv.config();
 
-const hostname = "127.0.0.1";
-const port = 4100;
+const hostname = "0.0.0.0";
+
+const externalUrl = process.env.RENDER_EXTERNAL_URL;
+const port =
+  externalUrl && process.env.PORT ? parseInt(process.env.PORT) : 4100;
 
 const app = express();
 app.set("views", path.join(__dirname, "views"));
@@ -88,14 +89,9 @@ app.get("/login", (req, res) => {
   });
 });
 
-https
-  .createServer(
-    {
-      key: fs.readFileSync("server.key"),
-      cert: fs.readFileSync("server.cert"),
-    },
-    app
-  )
-  .listen(port, hostname, () => {
-    console.log(`Server running at ${process.env.BASE_URL}/`);
+if (externalUrl) {
+  app.listen(port, hostname, () => {
+    console.log(`Server locally running at http://${hostname}:${port}/ and from
+    outside on ${externalUrl}`);
   });
+}

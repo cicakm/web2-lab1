@@ -33,7 +33,7 @@ export async function createTicket(
     );
     const createdTicketUUID = queryResult.rows[0].uuid;
     const generatedQR = await QRCode.toDataURL(
-      `${process.env.BASE_URL}/${createdTicketUUID}`
+      `${process.env.RENDER_EXTERNAL_URL}/ticket-details?uuid=${createdTicketUUID}`
     );
     return generatedQR;
   } catch (error) {
